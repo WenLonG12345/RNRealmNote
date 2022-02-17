@@ -24,8 +24,11 @@ const App = () => {
     </View>
   }
 
+  // add new random value to db, and listener should update UI instantly
   const onAdd = () => {
-
+    const id = Math.floor((Math.random() * 100) + 1);
+    const room = { id, content: `test${id}` }
+    RoomDao.insert(room);
   }
 
   useEffect(() => {

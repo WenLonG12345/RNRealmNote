@@ -14,6 +14,14 @@ const RoomDao = {
     const realm = RealmInstance();
 
     return realm.objects('Room');
+  },
+
+  insert: (room) => {
+    const realm = RealmInstance();
+
+    realm.write(() => {
+      realm.create('Room', room, UpdateMode.Modified);
+    })
   }
 }
 
