@@ -1,3 +1,4 @@
+import { createRealmContext } from '@realm/react';
 import Realm from 'realm';
 
 export const RoomSchema = {
@@ -9,12 +10,16 @@ export const RoomSchema = {
   },
 };
 
-const RealmInstance = () => new Realm({
+const config = {
   schema: [
     RoomSchema,
   ],
   schemaVersion: 1,
   deleteRealmIfMigrationNeeded: true
-});
+}
 
-export default RealmInstance;
+const RealmInstance = async() => Realm.open(config);
+
+const RealmContext = createRealmContext(config);
+
+export {RealmInstance, RealmContext};

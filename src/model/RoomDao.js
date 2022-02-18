@@ -1,12 +1,14 @@
 import { UpdateMode } from "realm";
-import RealmInstance from "./index";
+import {RealmInstance} from "./index";
 
 const RoomDao = {
-  insertAll: (roomList) => {
-    const realm = RealmInstance();
+  insertAll: async (roomList) => {
+    const realm = await RealmInstance();
 
     realm.write(() => {
-      realm.create('Room', room, UpdateMode.Modified);
+      roomList.map((room) => {
+        realm.create('Room', room, UpdateMode.Modified);
+      })
     })
   },
 
@@ -16,8 +18,8 @@ const RoomDao = {
     return realm.objects('Room');
   },
 
-  insert: (room) => {
-    const realm = RealmInstance();
+  insert: async (room) => {
+    const realm = await RealmInstance();
 
     realm.write(() => {
       realm.create('Room', room, UpdateMode.Modified);

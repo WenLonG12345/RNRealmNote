@@ -1,6 +1,7 @@
 import { FlatList, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import RoomDao from './src/model/RoomDao'
+import { RealmContext } from './src/model'
 
 const data = [
   { id: 1, content: 'test1' },
@@ -12,11 +13,13 @@ const data = [
   { id: 7, content: 'test7' },
   { id: 8, content: 'test8' },
   { id: 9, content: 'test9' },
-]
+];
+
+const { useQuery, RealmProvider } = RealmContext;
 
 const App = () => {
 
-  const [roomList, setRoomList] = useState();
+  const roomList = useQuery('Room');
 
   const RoomRow = ({ room }) => {
     <View>
@@ -25,47 +28,36 @@ const App = () => {
   }
 
   // add new random value to db, and listener should update UI instantly
-  const onAdd = () => {
+  const onAdd = async() => {
     const id = Math.floor((Math.random() * 100) + 1);
     const room = { id, content: `test${id}` }
-    RoomDao.insert(room);
+    await RoomDao.insert(room);
   }
 
   useEffect(() => {
-    // set initial value to useState
-    setRoomList(data);
-
-    // get latest data from db
-    const dbRoom = RoomDao.findAll();
-    setRoomList([...dbRoom]);
-
-    try {
-      // listen for db changes to update UI instantly
-      dbRoom.addListener((roomList, changes) => {
-        setRoomList([...dbRoom]);
-      });
-    } catch (err) {
-      // throw error - Cannot create asynchronous query while in a write transaction
-      console.error('listener error', err);
+    async function initData() {
+      await RoomDao.insertAll(data);
     }
-
-    return () => dbRoom.removeAllListeners();
+  
+    initData();
   }, [])
-
-
+  
   return (
-    <View>
-      <FlatList
-        keyExtractor={(item) => item.id}
-        data={roomList}
-        renderItem={({ item, index }) => (
-          <RoomRow room={item} />
-        )}
-      />
-      <TouchableOpacity onPress={onAdd}>
-        <Text>Add New Room</Text>
-      </TouchableOpacity>
-    </View>
+    <RealmProvider>
+      <View>
+        <FlatList
+          keyExtractor={(item) => item.id}
+          data={roomList}
+          renderItem={({ item, index }) => (
+            <RoomRow room={item} />
+          )}
+        />
+        <TouchableOpacity onPress={onAdd}>
+          <Text>Add New Room</Text>
+        </TouchableOpacity>
+      </View>
+    </RealmProvider>
+
   )
 }
 
