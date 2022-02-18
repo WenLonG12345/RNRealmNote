@@ -6,7 +6,7 @@ export const RoomSchema = {
   primaryKey: 'id',
   properties: {
     content: 'string?',
-    id: 'string',
+    id: 'int',
   },
 };
 

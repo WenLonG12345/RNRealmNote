@@ -1,5 +1,5 @@
-import { FlatList, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { FlatList, Text, TouchableOpacity, View, SafeAreaView } from 'react-native'
+import React, { useEffect } from 'react'
 import RoomDao from './src/model/RoomDao'
 import { RealmContext } from './src/model'
 
@@ -22,43 +22,51 @@ const App = () => {
   const roomList = useQuery('Room');
 
   const RoomRow = ({ room }) => {
-    <View>
+    return (<View>
       <Text>{room.content}</Text>
-    </View>
+    </View>)
   }
 
   // add new random value to db, and listener should update UI instantly
-  const onAdd = async() => {
+  const onAdd = () => {
+    console.log("hello")
     const id = Math.floor((Math.random() * 100) + 1);
     const room = { id, content: `test${id}` }
-    await RoomDao.insert(room);
+    RoomDao.insert(room);
   }
 
   useEffect(() => {
     async function initData() {
       await RoomDao.insertAll(data);
     }
-  
+
     initData();
   }, [])
-  
-  return (
-    <RealmProvider>
-      <View>
-        <FlatList
-          keyExtractor={(item) => item.id}
-          data={roomList}
-          renderItem={({ item, index }) => (
-            <RoomRow room={item} />
-          )}
-        />
-        <TouchableOpacity onPress={onAdd}>
-          <Text>Add New Room</Text>
-        </TouchableOpacity>
-      </View>
-    </RealmProvider>
 
+  return (
+    <SafeAreaView>
+      <FlatList
+        keyExtractor={(item) => item.id}
+        data={roomList}
+        renderItem={({ item, index }) => {
+          return (
+            <RoomRow room={item} />
+          )
+        }}
+      />
+      <TouchableOpacity onPress={onAdd}>
+        <Text>Add New Room</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   )
 }
 
-export default App
+const AppWrapper = () => {
+  return (
+    <RealmProvider>
+      <App/>
+    </RealmProvider>
+  )
+}
+
+export default AppWrapper
